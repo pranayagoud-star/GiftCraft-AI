@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GiftCraft AI | Personalized Gifts</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#"><span class="brand-mark">✦</span> GiftCraft <span class="brand-ai">AI</span></a>
+  <nav><a href="#explore">Explore</a><a href="#studio">Gift Studio</a><a href="#recommend">AI Ideas</a><a href="#orders">My Orders</a></nav>
+  <a class="nav-cta" href="#studio">Create a gift <span>↗</span></a>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="pulse"></span> MADE PERSONAL, MADE MEMORABLE</div>
+      <h1>Make it personal.<br><em>Make it unforgettable.</em></h1>
+      <p>Turn your favorite memories into thoughtful gifts. Personalize it, preview it, and make someone's day.</p>
+      <div class="hero-actions"><a class="btn btn-dark" href="#studio">Create your gift <span>→</span></a><a class="text-link" href="#explore">Explore collection <span>↓</span></a></div>
+      <div class="hero-proof"><div class="avatar-stack"><span>😊</span><span>🌼</span><span>💗</span></div><div><strong>Little details. Big feelings.</strong><small>Made just for your people</small></div></div>
+    </div>
+    <div class="hero-art">
+      <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+      <div class="hero-sticker sticker-top">made with ♥</div>
+      <div class="hero-gift"><div class="gift-ribbon"></div><div class="gift-bow">∞</div><div class="gift-label"><small>A LITTLE SOMETHING</small><strong>just for you</strong><span>✿ ✦ ✿</span></div></div>
+      <div class="floating-note note-left">Your photo<br><b>your story</b></div>
+      <div class="floating-note note-right">Wrapped with<br><b>extra love ✨</b></div>
+    </div>
+  </section>
+
+  <section class="trust-strip"><span>✦ Thoughtful gifting</span><span>✦ Made your way</span><span>✦ Preview before ordering</span><span>✦ Every occasion, covered</span></section>
+
+  <section id="explore" class="section">
+    <div class="section-heading"><div><div class="eyebrow">THE GIFT EDIT</div><h2>Little things, <em>big meaning.</em></h2></div><p>Choose a favorite and make it yours.</p></div>
+    <div class="product-grid" id="productGrid">
+      {% for p in products %}
+      <article class="product-card" data-id="{{ p.id }}" data-name="{{ p.name }}" data-price="{{ p.price }}" data-emoji="{{ p.emoji }}">
+        <button class="product-art art-{{ loop.index }}" aria-label="Customize {{ p.name }}" onclick="selectProduct({{ p.id }})"><span class="product-emoji">{{ p.emoji }}</span><span class="art-spark">✦</span><span class="quick-add">Customize ↗</span></button>
+        <div class="product-meta"><div><h3>{{ p.name }}</h3><p>{{ p.description }}</p></div><strong>₹{{ p.price }}</strong></div>
+        <button class="small-link" onclick="selectProduct({{ p.id }})">Make it personal <span>↗</span></button>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section id="studio" class="section studio-section">
+    <div class="section-heading"><div><div class="eyebrow">YOUR CREATIVE CORNER</div><h2>The <em>Gift Studio.</em></h2></div><p>Play with the details. Your preview updates as you go.</p></div>
+    <div class="studio-layout">
+      <div class="studio-controls">
+        <div class="step-label"><span>01</span> PICK YOUR PIECE</div>
+        <label for="productSelect">Choose a product</label>
+        <select id="productSelect" onchange="updatePreview()">
+          {% for p in products %}<option value="{{ p.id }}" data-price="{{ p.price }}" data-emoji="{{ p.emoji }}">{{ p.name }} — ₹{{ p.price }}</option>{% endfor %}
+        </select>
+        <div class="field-row"><div class="field"><label for="recipientName">Name on the gift</label><input id="recipientName" maxlength="28" placeholder="e.g. Priya" oninput="updatePreview()"></div><div class="field"><label for="giftColor">Accent color</label><input id="giftColor" type="color" value="#e98c9b" oninput="updatePreview()"></div></div>
+        <label for="giftMessage">Your personal message</label>
+        <textarea id="giftMessage" maxlength="120" rows="3" placeholder="A little note from the heart..." oninput="updatePreview()"></textarea>
+        <div class="photo-upload-field">
+          <label for="customPhoto">Upload your photo (optional)</label>
+          <input id="customPhoto" name="custom_photo" type="file" accept="image/png,image/jpeg,image/webp">
+          <small>JPG, PNG or WEBP · Maximum 5 MB. The photo will be attached to your demo order.</small>
+          <button type="button" class="small-link" id="removePhotoButton" onclick="removeCustomPhoto()" hidden>Remove photo ✕</button>
+        </div>
+        <label for="giftOccasion">Occasion</label>
+        <select id="giftOccasion"><option>Birthday</option><option>Anniversary</option><option>Friendship</option><option>Graduation</option><option>Thank You</option><option>Just Because</option></select>
+        <div class="custom-tip"><span>✦</span><div><strong>Made for them</strong><small>Check spelling and your message before placing an order.</small></div></div>
+        <button class="btn btn-dark full" onclick="focusCheckout()">Continue to order <span>→</span></button>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-top"><span><span class="live-dot"></span> LIVE PREVIEW</span><span class="preview-caption">A little preview of your idea</span></div>
+        <div class="preview-stage">
+          <div class="preview-spark spark-a">✦</div><div class="preview-spark spark-b">✧</div>
+          <div id="previewProduct" class="mock-product"><div class="mock-handle"></div><div class="mock-print"><span id="previewEmoji">☕</span><strong id="previewName">Your name</strong><small id="previewMessage">A little note from the heart...</small></div></div><img id="uploadedPhotoPreview" class="uploaded-photo-preview" alt="Your uploaded gift photo preview" hidden>
+          <div class="preview-shadow"></div>
+        </div>
+        <div class="preview-bottom"><div><small>YOUR CREATION</small><strong id="previewProductName">Personalized Photo Mug</strong></div><div class="preview-price" id="previewPrice">₹299</div></div>
+        <p class="preview-disclaimer">Illustrative preview for this demo. Actual printing may vary slightly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="recommend" class="section recommendation-section">
+    <div class="section-heading"><div><div class="eyebrow">A LITTLE HELP FROM AI</div><h2>Not sure what to gift? <em>We've got ideas.</em></h2></div><p>Tell us a little about the person and we'll suggest a starting point.</p></div>
+    <div class="recommend-box">
+      <div class="recommend-form">
+        <div class="field"><label for="recipientType">Who is it for?</label><select id="recipientType"><option value="friend">A friend</option><option value="family">Family</option><option value="student">A student</option><option value="romantic">Someone special</option></select></div>
+        <div class="field"><label for="occasionType">Occasion</label><select id="occasionType"><option value="birthday">Birthday</option><option value="anniversary">Anniversary</option><option value="celebration">Celebration</option><option value="friendship">Friendship</option></select></div>
+        <div class="field"><label for="budgetRange">Your budget: <strong id="budgetLabel">₹500</strong></label><input id="budgetRange" type="range" min="100" max="1500" step="50" value="500" oninput="document.getElementById('budgetLabel').textContent='₹'+this.value"></div>
+        <button class="btn btn-coral full" onclick="getRecommendations()">Find my gift <span>✦</span></button>
+        <p class="microcopy">Demo recommendation engine uses occasion, recipient, and budget.</p>
+      </div>
+      <div class="recommend-results" id="recommendResults"><div class="empty-recommend"><span>✧</span><h3>Your gift ideas will appear here.</h3><p>Pick a person, occasion, and budget, then tap “Find my gift”.</p></div></div>
+    </div>
+  </section>
+
+  <section class="message-section">
+    <div><div class="eyebrow">WORDS FROM THE HEART</div><h2>Sometimes, the <em>message</em><br>is the best part.</h2><p>Make a card feel more personal with a thoughtful message starter.</p></div>
+    <div class="message-tool">
+      <div class="field-row"><div class="field"><label for="messageRecipient">Their name</label><input id="messageRecipient" placeholder="e.g. Arjun"></div><div class="field"><label for="messageTone">Message style</label><select id="messageTone"><option value="heartfelt">Heartfelt</option><option value="funny">Funny</option><option value="short">Short & sweet</option></select></div></div>
+      <button class="btn btn-dark full" onclick="generateMessage()">Create a message ✨</button>
+      <div id="generatedMessage" class="generated-message">Your personalized message will show up here.</div>
+      <button class="small-link" onclick="useMessage()">Use this in my gift <span>↗</span></button>
+    </div>
+  </section>
+
+  <section id="orders" class="section checkout-section">
+    <div class="section-heading"><div><div class="eyebrow">MAKE IT OFFICIAL</div><h2>Ready to send <em>some joy?</em></h2></div><p>Place a demo order. Your details are saved in the local SQLite database.</p></div>
+    <form id="orderForm" class="checkout-card">
+      <div class="checkout-summary"><div class="summary-icon" id="checkoutEmoji">☕</div><div><small>YOU'RE ORDERING</small><strong id="checkoutProduct">Personalized Photo Mug</strong><span id="checkoutCustomization">Personalized just for you</span></div><b id="checkoutPrice">₹299</b></div>
+      <div class="checkout-fields">
+        <div class="field"><label for="customerName">Your name *</label><input id="customerName" required placeholder="Full name"></div>
+        <div class="field"><label for="customerEmail">Email *</label><input id="customerEmail" type="email" required placeholder="you@example.com"></div>
+        <div class="field full-field"><label for="deliveryAddress">Delivery address *</label><textarea id="deliveryAddress" required rows="2" placeholder="House / street, city, PIN code"></textarea></div>
+      </div>
+      <div class="field payment-field">
+        <label for="paymentMethod">Payment method *</label>
+        <select id="paymentMethod" required>
+          <option value="UPI (Demo)">UPI (Demo)</option>
+          <option value="Debit/Credit Card (Demo)">Debit / Credit Card (Demo)</option>
+          <option value="Net Banking (Demo)">Net Banking (Demo)</option>
+          <option value="Cash on Delivery">Cash on Delivery</option>
+        </select>
+      </div>
+      <div class="secure-note">🔒 Payment options are for demonstration only. No real payment is processed and no card/UPI credentials are collected.</div>
+      <button type="submit" class="btn btn-coral full">Place demo order <span>→</span></button>
+      <div id="orderFeedback" class="feedback" role="status"></div>
+    </form>
+    <div class="order-history-head"><div><div class="eyebrow">YOUR ORDER DESK</div><h3>Track your order</h3></div><button class="small-link" onclick="loadOrders()">Refresh orders ↻</button></div>
+    <div class="track-search"><label for="trackingOrderId">Enter order number</label><input id="trackingOrderId" type="number" min="1" placeholder="e.g. 1"><button class="btn btn-dark" type="button" onclick="trackOrder()">Track order ↗</button></div>
+    <div id="trackingResult" class="tracking-result" aria-live="polite"></div>
+    <div class="order-history-head"><div><div class="eyebrow">RECENT ACTIVITY</div><h3>Recent demo orders</h3></div></div>
+    <div id="ordersList" class="orders-list"><p class="muted">Place an order to see it listed here.</p></div>
+  </section>
+</main>
+
+<footer><a class="brand" href="#"><span class="brand-mark">✦</span> GiftCraft <span class="brand-ai">AI</span></a><p>Thoughtful gifts, made personal.</p><span>Hackathon prototype · Demo checkout</span></footer>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
